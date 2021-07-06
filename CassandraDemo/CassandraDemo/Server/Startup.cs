@@ -1,3 +1,4 @@
+using CassandraDemo.Server.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -23,7 +24,10 @@ namespace CassandraDemo.Server
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddMemoryCache();
             services.AddControllersWithViews();
+            services.AddTransient<IAKVService, AKVService>();
+            services.AddSingleton<IDbService, DbService>();
             services.AddRazorPages();
         }
 

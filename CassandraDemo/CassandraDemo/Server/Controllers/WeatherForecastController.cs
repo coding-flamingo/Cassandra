@@ -1,4 +1,5 @@
-﻿using CassandraDemo.Shared;
+﻿using CassandraDemo.Server.Services;
+using CassandraDemo.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,6 +13,8 @@ namespace CassandraDemo.Server.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        private readonly IDbService _dbService;
+        
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -19,21 +22,41 @@ namespace CassandraDemo.Server.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger,
+            IDbService dbService)
         {
             _logger = logger;
+            _dbService = dbService;
         }
 
-        [HttpGet]
+        [HttpGet ("GetForcast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var forcasts = _dbService.GetForcast();
+            return forcasts;
+        }
+        [HttpGet("AddEntry")]
+        public async Task AddEntryAsync()
+        {
+            var forcasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+            });
+            await _dbService.AddValuesAsync(forcasts);
+        }
+        [HttpDelete("DeleteForcasts")]
+        public async Task DeleteStuff()
+        {
+            try
+            {
+                await _dbService.DeleteForcastsAsync();
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
     }
 }

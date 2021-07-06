@@ -33,6 +33,9 @@ else
             }
         </tbody>
     </table>
+
+    <button class="btn btn-primary" @onclick="AddEntryAsync">Add Data</button>
+    <button class="btn btn-danger" @onclick="DeleteEntriesAsync">Delete Data</button>
 }
 
 @code {
@@ -40,7 +43,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast/GetForcast");
+    }
+
+    protected async Task AddEntryAsync()
+    {
+        var response = await Http.GetAsync("WeatherForecast/AddEntry");
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast/GetForcast");
+    }
+    protected async Task DeleteEntriesAsync()
+    {
+        var response = await Http.DeleteAsync("WeatherForecast/DeleteForcasts");
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast/GetForcast");
     }
 
 }
